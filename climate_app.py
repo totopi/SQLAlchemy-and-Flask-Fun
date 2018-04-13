@@ -47,7 +47,7 @@ def precipitation():
     
     return jsonify(all_results)
 
-@app.route("api/v1.0/stations")
+@app.route("/api/v1.0/stations")
 def stations():
     # Return a json list of stations from the dataset
     results = session.query(Stations.station).all()
@@ -60,7 +60,7 @@ def stations():
     
     return jsonify(all_results)
 
-@app.route("api/v1.0/tobs")
+@app.route("/api/v1.0/tobs")
 def tobs():
     #Return a json list of tobs for the previous year
     results = session.query(Measurements.date, Measurements.tobs).filter(Measurements.date >= "2017-01-01").filter(Measurements.date <= "2017-12-31").all()
@@ -71,13 +71,21 @@ def tobs():
     
     return jsonify(all_results)
 
+@app.route("/api/v1.0/<start>")
+@app.route("/api/v1.0/<start>/<end>")
+def weather_report(start=None, end=None):
+    try:
+        if end==None:
+            [(tmin, tavg, tmax)] = session.query(func.min(Measurements.tobs), func.avg(Measurements.tobs), func.max(Measurements.tobs)).filter(Measurements.date >= start).all()
 
-"""Return a json list of the minimum temperature, the average temperature, and the max temperature for a given start or start-end range.
-When given the start only, calculate TMIN, TAVG, and TMAX for all dates greater than and equal to the start date.
-When given the start and the end date, calculate the TMIN, TAVG, and TMAX for dates between the start and end date inclusive."""
-@app.route("api/v1.0/<start>")
-def start():
-    
+            return jsonify([(tmin, tavg, tmax)])
+        
+        else:
+            [(tmin, tavg, tmax)] = session.query(func.min(Measurements.tobs), func.avg(Measurements.tobs), func.max(Measurements.tobs)).filter(Measurements.date >= start).filter(Measurements.date <= end).all()
+
+            return jsonify([(tmin, tavg, tmax)])
+    except:
+        return jsonify("Please input your date as YYYY-MM-DD")
 
 
 if __name__ == "__main__":
