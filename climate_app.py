@@ -1,3 +1,25 @@
+'''Step 4 - Climate App
+Now that you have completed your initial analysis, design a Flask api based on the queries that you have just developed.
+Use FLASK to create your routes.
+Routes
+/api/v1.0/precipitation
+Query for the dates and temperature observations from the last year.
+Convert the query results to a Dictionary using date as the key and tobs as the value.
+Return the json representation of your dictionary.
+/api/v1.0/stations
+Return a json list of stations from the dataset.
+/api/v1.0/tobs
+Return a json list of Temperature Observations (tobs) for the previous year
+/api/v1.0/<start> and /api/v1.0/<start>/<end>
+Return a json list of the minimum temperature, the average temperature, and the max temperature for a given start or start-end range.
+When given the start only, calculate TMIN, TAVG, and TMAX for all dates greater than and equal to the start date.
+When given the start and the end date, calculate the TMIN, TAVG, and TMAX for dates between the start and end date inclusive.
+
+Hints
+You will need to join the station and measurement tables for some of the analysis queries.
+Use Flask jsonify to convert your api data into a valid json response object.'''
+
+# Dependencies
 import datetime as dt
 import numpy as np
 import pandas as pd
@@ -9,9 +31,7 @@ from sqlalchemy import create_engine, func
 
 from flask import Flask, jsonify
 
-#################################################
-# Database Setup
-#################################################
+# Database Setup copied from thing we did in class
 engine = create_engine("sqlite:///hawaii.sqlite")
 
 # reflect an existing database into a new model
@@ -74,6 +94,7 @@ def tobs():
 @app.route("/api/v1.0/<start>")
 @app.route("/api/v1.0/<start>/<end>")
 def weather_report(start=None, end=None):
+    #If there's just a start date, return the minimum, average, and maximum temperature since that date, otherwise those same values between two dates
     try:
         if end==None:
             [(tmin, tavg, tmax)] = session.query(func.min(Measurements.tobs), func.avg(Measurements.tobs), func.max(Measurements.tobs)).filter(Measurements.date >= start).all()
@@ -87,6 +108,6 @@ def weather_report(start=None, end=None):
     except:
         return jsonify("Please input your date as YYYY-MM-DD")
 
-
+# This thing that must exist
 if __name__ == "__main__":
     app.run(debug=True)
