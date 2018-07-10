@@ -51,6 +51,15 @@ session = Session(engine)
 #################################################
 app = Flask(__name__)
 
+@app.route('/')
+def home():
+    return jsonify({'Routes': {'/api/v1.0/precipitation': 'Returns a dictionary of dates and temperature observations',
+                               '/api/v1.0/stations': 'Returns a list of stations',
+                               '/api/v1.0/tobs': 'Returns a list of temperature observations',
+                               '/api/v1.0/<start>': 'Returns minimum, average, and maximum temperature from a given start date',
+                               '/api/v1.0/<start>/<end>': 'Returns minimum, average, and maximum temperature for a given range of dates'
+    }})
+
 @app.route("/api/v1.0/precipitation")
 def precipitation():
     # Query the dates and temp obs from the last year
